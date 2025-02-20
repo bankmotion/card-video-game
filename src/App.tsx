@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { IRefPhaserGame, PhaserGame } from "./game/PhaserGame";
 import { MainMenu } from "./game/scenes/MainMenu";
+import { SceneKey } from "./constants/Scene";
 
 function App() {
     // The sprite can only be moved in the MainMenu Scene
@@ -61,20 +62,36 @@ function App() {
 
     // Event emitted from the PhaserGame component
     const currentScene = (scene: Phaser.Scene) => {
-        const sceneKey = scene.scene.key;
-        console.log(sceneKey);
-        setCanMoveSprite(scene.scene.key !== "MainMenu");
+        setCanMoveSprite(scene.scene.key !== SceneKey.MainMenu);
+    };
+
+    const renderButton = () => {
+        const sceneKey = phaserRef.current?.scene?.scene.key as SceneKey;
+        let btnText = "";
+        switch (sceneKey) {
+            case SceneKey.MainMenu:
+                btnText = "Start Game";
+                break;
+            case SceneKey.Game:
+                btnText = "Exit Game";
+                break;
+            case SceneKey.GameOver:
+                btnText = "Go to Menu";
+                break;
+        }
+        console.log({ btnText });
+        return (
+            <button className="button" onClick={changeScene}>
+                {btnText}
+            </button>
+        );
     };
 
     return (
         <div id="app">
             <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
             <div>
-                <div>
-                    <button className="button" onClick={changeScene}>
-                        Start Game
-                    </button>
-                </div>
+                <div>{renderButton()}</div>
                 <div>
                     <button
                         disabled={canMoveSprite}
