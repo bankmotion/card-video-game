@@ -1,27 +1,32 @@
 import { DeckType } from "@/types/Deck";
 import { CardManager } from "./CardManager";
 import { GameSetting } from "@/config/config";
+import { GameStatus } from "@/constants/GameStatus";
 
 export class GameLogic {
     cardManager: CardManager;
-    players: { hand: DeckType[] }[] = [];
     currentPlayerIndex: number = 0;
+    currentGameStatus: GameStatus = GameStatus.Waiting;
 
     constructor(cardManager: CardManager) {
         this.cardManager = cardManager;
     }
 
+    updateGameStatus(gameStatus: GameStatus) {
+        this.currentGameStatus = gameStatus;
+    }
+
     initializePlayers() {
         for (let i = 0; i < 4; i++) {
-            this.players.push({ hand: this.drawStartingHand() });
+            // this.players.push({ hand: this.drawStartingHand() });
         }
     }
 
-    drawStartingHand(): DeckType[] {
-        return Array.from(
-            { length: GameSetting.InitialHoldCount },
-            () => this.cardManager.drawCard()!
-        );
+    drawStartingHand() {
+        // return Array.from(
+        //     { length: GameSetting.InitialHoldCount },
+        //     () => this.cardManager.drawCard()!
+        // );
     }
 
     nextTurn() {

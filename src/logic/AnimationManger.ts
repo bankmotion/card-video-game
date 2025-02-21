@@ -1,4 +1,4 @@
-import { UISetting } from "@/config/config";
+import { GameSetting, SubUISetting, UISetting } from "@/config/config";
 import { ImgAssetsKey } from "@/constants/Scene";
 import { DeckType } from "@/types/Deck";
 import gsap from "gsap";
@@ -10,87 +10,166 @@ export class AnimationManager {
         this.scene = scene;
     }
 
-    animateCardsGroup(
-        sprites: Phaser.GameObjects.Image[],
-        duration: number = 1
-    ) {
-        sprites.forEach((sprite, index) => {
+    animateCardsGroup(sprites: Phaser.GameObjects.Image[]) {
+        for (let i = sprites.length - 1; i >= 0; i--) {
+            const sprite = sprites[i];
+
             gsap.to(sprite, {
-                x: UISetting.BoardWidth * 0.3 + index * 0.2,
-                y: UISetting.BoardHeight * 0.35 + index * 0.2,
-                delay: 0.005 * index,
-                duration,
+                x:
+                    SubUISetting.CardsGroupPos.X +
+                    (sprites.length - 1 - i) * 0.2,
+                y:
+                    SubUISetting.CardsGroupPos.Y +
+                    (sprites.length - 1 - i) * 0.2,
+                delay:
+                    SubUISetting.CardsGroupPos.Delay * (sprites.length - 1 - i),
+                duration: SubUISetting.CardsGroupPos.Duration,
                 ease: "power2.out",
             });
-        });
+        }
     }
 
     dealCards(
         sprites: Phaser.GameObjects.Image[],
         decks: DeckType[],
-        playerPostions: { x: number; y: number }[],
-        duration: number = 0.1
+        calculateNewCardPos: (
+            playerIndex: number,
+            totalCount: number,
+            cardIndex: number
+        ) => { x: number; y: number }
     ) {
         const timeline = gsap.timeline();
+        const { PlayerCount, InitialHoldCount } = GameSetting;
+        const handCards: number[][] = [[], [], [], []];
 
         //animation for each to each player
-        for (let i = 0; i < 14 * 4; i++) {
-            const playerIndex = i % 4;
+        for (let i = 0; i < InitialHoldCount * PlayerCount; i++) {
+            const playerIndex = i % PlayerCount;
             const sprite = sprites[i];
             if (!sprite) break;
+
+            const newPos = calculateNewCardPos(
+                playerIndex,
+                Math.floor(i / PlayerCount) + 1,
+                Math.floor(i / PlayerCount)
+            );
+
+            const isVertical = playerIndex === 1 || playerIndex === 3;
 
             const cardTimeline = gsap.timeline();
 
             cardTimeline.to(sprite, {
-                x:
-                    playerPostions[playerIndex].x +
-                    ((i / 4) * UISetting.CardWidth) / 2,
-                y: playerPostions[playerIndex].y,
-                duration,
+                x: newPos.x,
+                y: newPos.y,
+                duration: SubUISetting.DealCards.Duration,
+                rotation: Math.PI * (isVertical ? 3.5 : 4),
                 ease: "power2.out",
-                delay: 0.01,
                 onComplete: () => {
-                    // rotate 90 degrees
-                    gsap.to(sprite, {
-                        rotation: Math.PI,
-                        duration: 0.2,
-                        ease: "power2.out",
-                        onComplete: () => {
-                            // back my deck card
-                            if (playerIndex === 0) {
-                                sprite
-                                    .setTexture(
-                                        `${ImgAssetsKey.CardSprite}-${decks[i].suit}-${decks[i].value}`
-                                    )
-                                    .setDisplaySize(
-                                        UISetting.CardWidth,
-                                        UISetting.CardHeight
-                                    );
-                            }
+                    // back my deck card
+                    if (playerIndex === 0) {
+                        sprite
+                            .setTexture(
+                                `${ImgAssetsKey.CardSprite}-${decks[i].suit}-${decks[i].value}`
+                            )
+                            .setDisplaySize(
+                                UISetting.CardWidth,
+                                UISetting.CardHeight
+                            );
+                    }
 
-                            // rotate all cards
-                            gsap.to(sprite, {
-                                rotate: Math.PI,
-                                duration: 0.2,
-                                ease: "power2.out",
-                                onComplete: () => {},
-                            });
-                        },
-                    });
+                    sprite.setDepth(i);
+                    handCards[playerIndex].push(i);
+                    this.repositionPlayerHand(
+                        playerIndex,
+                        [...handCards[playerIndex]],
+                        sprites,
+                        calculateNewCardPos
+                    );
                 },
             });
 
-            timeline.add(cardTimeline, i * 0.05);
-
-            // timeline.to(card.sprite, {
-            //     x:
-            //         playerPostions[playerIndex].x +
-            //         ((i / 4) * UISetting.CardWidth) / 2,
-            //     y: playerPostions[playerIndex].y,
-            //     duration,
-            //     ease: "power2.out",
-            //     delay: 0.01,
-            // });
+            timeline.add(cardTimeline, i * SubUISetting.DealCards.Delay);
         }
+    }
+
+    drawCard(
+        sprites: Phaser.GameObjects.Image[],
+        deck: DeckType,
+        handCards: number[],
+        playerIndex: number,
+        cardIndex: number,
+        calculateNewCardPos: (
+            playerIndex: number,
+            totalCount: number,
+            cardIndex: number
+        ) => { x: number; y: number }
+    ) {
+        const isVertical = playerIndex === 1 || playerIndex === 3;
+        const sprite = sprites[cardIndex];
+        const newPos = calculateNewCardPos(
+            playerIndex,
+            handCards.length,
+            handCards.length - 1
+        );
+
+        gsap.to(sprite, {
+            x: newPos.x,
+            y: newPos.y,
+            duration: 0.5,
+            rotation: Math.PI * (isVertical ? 3.5 : 4),
+            ease: "power2.out",
+            onComplete: () => {
+                // back my deck card
+                if (playerIndex === 0) {
+                    sprite
+                        .setTexture(
+                            `${ImgAssetsKey.CardSprite}-${deck.suit}-${deck.value}`
+                        )
+                        .setDisplaySize(
+                            UISetting.CardWidth,
+                            UISetting.CardHeight
+                        );
+                }
+
+                this.repositionPlayerHand(
+                    playerIndex,
+                    handCards,
+                    sprites,
+                    calculateNewCardPos
+                );
+            },
+        });
+    }
+
+    repositionPlayerHand(
+        playerIndex: number,
+        handCards: number[],
+        deckSprites: Phaser.GameObjects.Image[],
+        calculateNewCardPos: (
+            playerIndex: number,
+            totalCount: number,
+            cardIndex: number
+        ) => { x: number; y: number }
+    ) {
+        if (!handCards || handCards.length === 0) return;
+
+        console.log(playerIndex, handCards, deckSprites);
+
+        handCards.forEach((cardIndex, i) => {
+            const newPos = calculateNewCardPos(
+                playerIndex,
+                handCards.length,
+                i
+            );
+            gsap.to(deckSprites[cardIndex], {
+                x: newPos.x,
+                y: newPos.y,
+                duration: 0.1,
+                ease: "power2.out",
+                onComplete: () => {
+                    deckSprites[cardIndex].setDepth(i);
+                },
+            });
+        });
     }
 }

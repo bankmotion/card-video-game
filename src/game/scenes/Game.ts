@@ -30,8 +30,10 @@ export class Game extends Scene {
             .setDisplaySize(UISetting.BoardWidth, UISetting.BoardHeight)
             .setOrigin(0.5);
 
-        this.cardManager = new CardManager(this);
-        this.gameLogic = new GameLogic(this.cardManager);
+        this.gameLogic = new GameLogic(null as any);
+        this.cardManager = new CardManager(this, this.gameLogic);
+
+        this.gameLogic.cardManager = this.cardManager;
 
         EventBus.emit("current-scene-ready", this);
     }
