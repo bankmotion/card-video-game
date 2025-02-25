@@ -541,8 +541,9 @@ export class CardManager {
             });
         } else {
             this.decks.forEach((_, index) => {
-                if (this.deckSprites[index].input) {
-                    this.deckSprites[index].input.draggable = false;
+                const deckSprite = this.deckSprites?.[index];
+                if (deckSprite && deckSprite.input) {
+                    deckSprite.input.draggable = false;
                 }
             });
         }
