@@ -71,7 +71,6 @@ export class Game extends Scene {
         this.loadingText = this.add
             .text(320, 230, "Loading...", {
                 font: "20px Arial",
-                fill: "#ffffff",
             })
             .setOrigin(0.5, 0.5);
     }
