@@ -14,6 +14,24 @@ export class GameLogic {
 
     updateGameStatus(gameStatus: GameStatus) {
         this.currentGameStatus = gameStatus;
+
+        if (gameStatus === GameStatus.Discard) {
+            this.cardManager.updateCardDraggable();
+        } else if (gameStatus === GameStatus.CheckingWin) {
+            this.cardManager.updateCardDraggable();
+
+            const checkWinner = this.cardManager.checkSetOrSequence();
+            this.updateGameStatus(GameStatus.Draw);
+        }
+
+        if (
+            gameStatus === GameStatus.Draw ||
+            gameStatus === GameStatus.Discard
+        ) {
+            this.cardManager.shuffleCard.setVisible(true);
+        } else {
+            this.cardManager.shuffleCard.setVisible(false);
+        }
     }
 
     initializePlayers() {

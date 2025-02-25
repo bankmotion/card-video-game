@@ -8,9 +8,9 @@ export const UISetting = {
     BoardWidth: 1920,
     BoardHeight: 1080,
     // BoardHeight: window.innerHeight,
-    CardWidth: 90,
+    CardWidth: 120,
     // CardWidth: window.innerWidth / 30,
-    CardHeight: 135,
+    CardHeight: 180,
     // CardHeight: window.innerWidth / 20,
 };
 
@@ -40,5 +40,26 @@ export const SubUISetting = {
     HandPlayPos: {
         X: 0.1,
         Y: 0.1,
+    },
+
+    ConfirmButton: {
+        x: UISetting.BoardWidth * 0.95,
+        y: UISetting.BoardHeight * 0.9,
+        width: 100,
+        height: 111,
+    },
+
+    WinnerModal: {
+        x: UISetting.BoardWidth * 0.5,
+        y: UISetting.BoardHeight * 0.5,
+        width: 300,
+        height: 300,
+    },
+
+    ShuffleCard: {
+        x: UISetting.BoardWidth * 0.85,
+        y: UISetting.BoardHeight * 0.9,
+        width: 300,
+        height: 250,
     },
 };

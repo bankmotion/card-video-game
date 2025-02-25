@@ -28,6 +28,8 @@
         "build-nolog": "next build"
     },
     "dependencies": {
+        "@tailwindcss/postcss": "^4.0.8",
+        "@tailwindcss/vite": "^4.0.8",
         "gsap": "^3.12.7",
         "next": "14.2.3",
         "phaser": "^3.88.2",
@@ -38,6 +40,9 @@
         "@types/node": "^20",
         "@types/react": "^18",
         "@types/react-dom": "^18",
+        "autoprefixer": "^10.4.20",
+        "postcss": "^8.5.3",
+        "tailwindcss": "^4.0.8",
         "typescript": "^5"
     }
 }

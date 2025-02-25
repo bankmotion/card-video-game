@@ -1,9 +1,9 @@
 export enum SuitValue {
-    Spade = "Spade",
-    Heart = "Heart",
-    Club = "Club",
-    Diamond = "Diamond",
-    Joker = "Joker",
+    Spade = 0,
+    Heart = 1,
+    Club = 2,
+    Diamond = 3,
+    Joker = 4,
 }
 
 export enum DeckValue {
@@ -20,5 +20,11 @@ export enum DeckValue {
     Jack = 11,
     Queen = 12,
     King = 13,
-    Joker = 0,
+    Joker = 14,
+}
+
+export enum DeckSort {
+    None,
+    Rank,
+    Suit,
 }

@@ -83,6 +83,7 @@ export class AnimationManager {
                         playerIndex,
                         [...handCards[playerIndex]],
                         sprites,
+                        -1,
                         calculateNewCardPos
                     );
                 },
@@ -135,6 +136,7 @@ export class AnimationManager {
                     playerIndex,
                     handCards,
                     sprites,
+                    -1,
                     calculateNewCardPos
                 );
             },
@@ -145,6 +147,7 @@ export class AnimationManager {
         playerIndex: number,
         handCards: number[],
         deckSprites: Phaser.GameObjects.Image[],
+        ignoreCardIndex: number,
         calculateNewCardPos: (
             playerIndex: number,
             totalCount: number,
@@ -153,14 +156,14 @@ export class AnimationManager {
     ) {
         if (!handCards || handCards.length === 0) return;
 
-        console.log(playerIndex, handCards, deckSprites);
-
         handCards.forEach((cardIndex, i) => {
+            if (i === ignoreCardIndex) return;
             const newPos = calculateNewCardPos(
                 playerIndex,
                 handCards.length,
                 i
             );
+
             gsap.to(deckSprites[cardIndex], {
                 x: newPos.x,
                 y: newPos.y,
@@ -171,5 +174,38 @@ export class AnimationManager {
                 },
             });
         });
+    }
+
+    shortCardMoveAnimation(
+        sprite: Phaser.GameObjects.Image,
+        x: number,
+        y: number
+    ) {
+        gsap.to(sprite, {
+            x,
+            y,
+            duration: 0.2,
+            ease: "power2.out",
+        });
+    }
+
+    animateWinnerModal(sprite: Phaser.GameObjects.Image) {
+        gsap.timeline()
+            .fromTo(
+                sprite,
+                {
+                    scale: 0,
+                },
+                {
+                    scale: 1.5,
+                    duration: 0.5,
+                    ease: "power2.out",
+                }
+            )
+            .to(sprite, {
+                scale: 1,
+                duration: 0.3,
+                ease: "power2.in",
+            });
     }
 }

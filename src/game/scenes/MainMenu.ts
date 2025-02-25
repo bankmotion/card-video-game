@@ -2,6 +2,7 @@ import { GameObjects, Scene } from "phaser";
 
 import { EventBus } from "../EventBus";
 import { ImgAssetsKey, SceneKey } from "@/constants/Scene";
+import { UISetting } from "@/config/config";
 
 export class MainMenu extends Scene {
     background: GameObjects.Image;
@@ -14,7 +15,19 @@ export class MainMenu extends Scene {
     }
 
     create() {
-        this.background = this.add.image(512, 384, ImgAssetsKey.MainMenuBG);
+        this.background = this.add
+            .image(
+                UISetting.BoardWidth / 2,
+                UISetting.BoardHeight / 2,
+                ImgAssetsKey.MainMenuBG
+            )
+            .setDisplaySize(UISetting.BoardWidth, UISetting.BoardHeight)
+            .setInteractive();
+
+        this.background.on("pointerdown", () => {
+            console.log("hi");
+            this.changeScene();
+        });
 
         this.logo = this.add.image(512, 300, "logo").setDepth(100);
 

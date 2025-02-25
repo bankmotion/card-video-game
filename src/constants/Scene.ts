@@ -11,4 +11,7 @@ export enum ImgAssetsKey {
     GameBoardBG = "GameBoardBG",
     CardSprite = "CardSprite",
     BackCard = "BackCard",
+    ConfirmButton = "ConfirmButton",
+    Winner = "Winner",
+    Shuffle = "Shuffle",
 }
