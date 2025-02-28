@@ -17,10 +17,6 @@ export class Game extends Scene {
         super(SceneKey.Game);
     }
 
-    private progressBar: Phaser.GameObjects.Graphics | null = null;
-    private progressBox: Phaser.GameObjects.Graphics | null = null;
-    private loadingText: Phaser.GameObjects.Text | null = null;
-
     preload() {
         this.load.image(ImgAssetsKey.MainMenuBG, "assets/bg.png");
         this.load.image(ImgAssetsKey.GameBoardBG, "assets/imgs/Table.jpg");
@@ -45,41 +41,6 @@ export class Game extends Scene {
                     `assets/imgs/cards/${suitValue}-${deckValue}.png`
                 );
             }
-        }
-
-        this.load.on("progress", (value: number) => {
-            this.updateProgressBar(value);
-        });
-
-        this.load.on("complete", () => {
-        });
-    }
-
-    createProgressBar() {
-        const width = 300;
-        const height = 50;
-
-        // Create a background box for the progress bar
-        this.progressBox = this.add.graphics();
-        this.progressBox.fillStyle(0x222222, 0.8);
-        this.progressBox.fillRect(240, 270, width, height);
-
-        // Create the progress bar (foreground)
-        this.progressBar = this.add.graphics();
-
-        // Create a loading text
-        this.loadingText = this.add
-            .text(320, 230, "Loading...", {
-                font: "20px Arial",
-            })
-            .setOrigin(0.5, 0.5);
-    }
-
-    updateProgressBar(value: number) {
-        if (this.progressBar) {
-            this.progressBar.clear();
-            this.progressBar.fillStyle(0x00ff00, 1); // Green color
-            this.progressBar.fillRect(245, 275, 290 * value, 30); // Fill the progress bar based on the value
         }
     }
 

@@ -3,63 +3,81 @@ export const GameSetting = {
     PlayerCount: 4,
 };
 
-export const UISetting = {
-    // BoardWidth: window.innerWidth,
-    BoardWidth: 1920,
-    BoardHeight: 1080,
-    // BoardHeight: window.innerHeight,
-    CardWidth: 120,
-    // CardWidth: window.innerWidth / 30,
-    CardHeight: 180,
-    // CardHeight: window.innerWidth / 20,
+const getWidthAndHeight = () => {
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    const aspectRatio = 1920 / 1080;
+
+    let boardWidth = windowWidth;
+    let boardHeight = windowHeight;
+
+    if (windowWidth / windowHeight > aspectRatio) {
+        boardWidth = windowHeight * aspectRatio;
+    } else {
+        boardHeight = windowWidth / aspectRatio;
+    }
+
+    return {
+        BoardWidth: boardWidth,
+        BoardHeight: boardHeight,
+        CardWidth: boardWidth / 20,
+        CardHeight: (boardWidth / 20 / 2) * 3,
+    };
 };
 
-export const SubUISetting = {
-    HorizontalCardSpacing: UISetting.CardWidth * 0.6,
-    VerticalCardSpacing: UISetting.CardWidth * 0.4,
+export const UISetting = getWidthAndHeight();
 
-    CardsGroupPos: {
-        StartX: -100,
-        StartY: UISetting.BoardHeight,
-        X: UISetting.BoardWidth * 0.28,
-        Y: UISetting.BoardHeight * 0.42,
-        Delay: 0.01,
-        Duration: 1,
-    },
+const updateUISetting = () => {
+    return {
+        HorizontalCardSpacing: UISetting.CardWidth * 0.6,
+        VerticalCardSpacing: UISetting.CardWidth * 0.4,
 
-    DealCards: {
-        Duration: 0.5,
-        Delay: 0.1,
-    },
+        CardsGroupPos: {
+            StartX: -100,
+            StartY: UISetting.BoardHeight,
+            X: UISetting.BoardWidth * 0.28,
+            Y: UISetting.BoardHeight * 0.42,
+            Delay: 0.01,
+            Duration: 1,
+        },
 
-    DiscardPilePos: {
-        X: UISetting.BoardWidth * 0.35,
-        Y: UISetting.BoardHeight * 0.42,
-    },
+        DealCards: {
+            Duration: 0.5,
+            Delay: 0.1,
+        },
 
-    HandPlayPos: {
-        X: 0.1,
-        Y: 0.1,
-    },
+        DiscardPilePos: {
+            X: UISetting.BoardWidth * 0.35,
+            Y: UISetting.BoardHeight * 0.42,
+        },
 
-    ConfirmButton: {
-        x: UISetting.BoardWidth * 0.95,
-        y: UISetting.BoardHeight * 0.9,
-        width: 100,
-        height: 111,
-    },
+        HandPlayPos: {
+            X: 0.1,
+            Y: 0.1,
+        },
 
-    WinnerModal: {
-        x: UISetting.BoardWidth * 0.5,
-        y: UISetting.BoardHeight * 0.5,
-        width: 300,
-        height: 300,
-    },
+        ConfirmButton: {
+            x: UISetting.BoardWidth * 0.95,
+            y: UISetting.BoardHeight * 0.9,
+            width: 100,
+            height: 111,
+        },
 
-    ShuffleCard: {
-        x: UISetting.BoardWidth * 0.85,
-        y: UISetting.BoardHeight * 0.9,
-        width: 300,
-        height: 250,
-    },
+        WinnerModal: {
+            x: UISetting.BoardWidth * 0.5,
+            y: UISetting.BoardHeight * 0.5,
+            width: 300,
+            height: 300,
+        },
+
+        ShuffleCard: {
+            x: UISetting.BoardWidth * 0.85,
+            y: UISetting.BoardHeight * 0.9,
+            width: UISetting.BoardWidth * 0.2,
+            height: UISetting.BoardWidth * 0.2 * 0.8,
+        },
+    };
 };
+
+export const SubUISetting = updateUISetting();
