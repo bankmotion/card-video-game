@@ -552,152 +552,181 @@ export class CardManager {
     checkSetOrSequence() {
         const { currentPlayerIndex } = this.gameLogic;
         const handCards = this.playerHands[currentPlayerIndex];
+        // const aaa = [
+        //     {
+        //         a: SuitValue.Spade,
+        //         b: DeckValue.Ace,
+        //     },
+        //     {
+        //         a: SuitValue.Heart,
+        //         b: DeckValue.Ace,
+        //     },
+        //     {
+        //         a: SuitValue.Diamond,
+        //         b: DeckValue.Ace,
+        //     },
+        //     {
+        //         a: SuitValue.Heart,
+        //         b: DeckValue.Three,
+        //     },
+        //     {
+        //         a: SuitValue.Heart,
+        //         b: DeckValue.Four,
+        //     },
+        //     {
+        //         a: SuitValue.Heart,
+        //         b: DeckValue.Five,
+        //     },
+        //     {
+        //         a: SuitValue.Club,
+        //         b: DeckValue.Three,
+        //     },
+        //     {
+        //         a: SuitValue.Club,
+        //         b: DeckValue.Four,
+        //     },
+        //     {
+        //         a: SuitValue.Joker,
+        //         b: DeckValue.Joker,
+        //     },
+        //     {
+        //         a: SuitValue.Club,
+        //         b: DeckValue.Six,
+        //     },
+        //     {
+        //         a: SuitValue.Diamond,
+        //         b: DeckValue.Two,
+        //     },
+        //     {
+        //         a: SuitValue.Diamond,
+        //         b: DeckValue.Three,
+        //     },
+        //     {
+        //         a: SuitValue.Diamond,
+        //         b: DeckValue.Four,
+        //     },
+        //     {
+        //         a: SuitValue.Joker,
+        //         b: DeckValue.Joker,
+        //     },
+        // ];
+        // let handCards: number[] = [];
+
+        // for (const a of aaa) {
+        //     const index = this.decks.findIndex(
+        //         (deck, indexed) =>
+        //             deck.suit === a.a &&
+        //             deck.value === a.b &&
+        //             !handCards.some((card, inde) => inde === indexed)
+        //     );
+        //     handCards.push(index);
+        // }
+        // console.log(`Handcards: `, [...handCards]);
 
         let status = false;
-        let remainingCards = [...handCards]
-            .filter((cardId) => this.decks[cardId].suit !== SuitValue.Joker)
-            .sort(
-                (a, b) =>
-                    this.decks[a].suit - this.decks[b].suit ||
-                    this.decks[a].value - this.decks[b].value
+
+        const countJokers = (group: number[]): number => {
+            return group.filter(
+                (cardId) => this.decks[cardId].suit === SuitValue.Joker
+            ).length;
+        };
+
+        const isSequence = (group: number[]): boolean => {
+            if (group.length < 3) return false;
+
+            const nonJokers: number[] = group.filter(
+                (cardId) => this.decks[cardId].suit !== SuitValue.Joker
             );
-        let jokers = [...handCards].filter(
-            (cardId) => this.decks[cardId].suit === SuitValue.Joker
-        );
-        let seqs: number[][] = [];
-        let sets: number[][] = [];
+            const jokerCount: number = countJokers(group);
 
-        // group cards by rank for sets
-        let rankGroup: { [key: number]: number[] } = {};
-        for (const cardId of remainingCards) {
-            const cardInfo = this.decks[cardId];
-            if (!rankGroup[cardInfo.value]) {
-                rankGroup[cardInfo.value] = [];
+            // if all cards are jokers, they can form a seq
+            if (nonJokers.length === 0) return true;
+
+            // check if all non-joker cards have the same suit
+            const suits = nonJokers.map((cardId) => this.decks[cardId].suit);
+            if (new Set(suits).size !== 1) return false;
+
+            // check if non-joker cards have unique values
+            const values = nonJokers.map((cardId) => this.decks[cardId].value);
+            if (new Set(values).size !== values.length) return false;
+
+            // sort the values of non-joker cards
+            const sortedValues = values.sort((a, b) => a - b);
+
+            //  calculate the number of gaps in the sequence
+            let gaps = 0;
+            for (let i = 1; i < sortedValues.length; i++) {
+                gaps += sortedValues[i] - sortedValues[i - 1] - 1;
             }
-            rankGroup[cardInfo.value].push(cardId);
-        }
 
-        // extract sets
-        for (const rank in rankGroup) {
-            let group = rankGroup[Number(rank)];
-            if (group.length >= 3) {
-                sets.push(group.splice(0, group.length));
-            }
-        }
+            return gaps <= jokerCount;
+        };
 
-        remainingCards = Object.values(rankGroup).flat();
-        remainingCards.sort(
-            (a, b) =>
-                this.decks[a].suit - this.decks[b].suit ||
-                this.decks[a].value - this.decks[b].value
-        );
+        const isSet = (group: number[]): boolean => {
+            if (group.length < 3) return false;
 
-        let tempSeq: number[] = [];
-        for (let i = 0; i < remainingCards.length; i++) {
-            const cardId = remainingCards[i];
-            const cardInfo = this.decks[cardId];
+            const nonJokers = group.filter(
+                (cardId) => this.decks[cardId].suit !== SuitValue.Joker
+            );
 
-            if (
-                tempSeq.length === 0 ||
-                (this.decks[tempSeq[tempSeq.length - 1]].suit ===
-                    cardInfo.suit &&
-                    this.decks[tempSeq[tempSeq.length - 1]].value + 1 ===
-                        cardInfo.value)
-            ) {
-                tempSeq.push(cardId);
-            } else {
-                if (tempSeq.length >= 3) {
-                    seqs.push([...tempSeq]);
+            // if all cards are jokers, they can form a set
+            if (nonJokers.length === 0) return true;
+
+            // check if all non-joker cards have the same value
+            const values = nonJokers.map((cardId) => this.decks[cardId].value);
+            if (new Set(values).size !== 1) return false;
+
+            return true;
+        };
+
+        const isValidGroup = (group: number[]): boolean => {
+            return isSequence(group) || isSet(group);
+        };
+
+        const generateGroups = (
+            cards: number[],
+            groupSize: number
+        ): number[][] => {
+            const groups: number[][] = [];
+
+            const backtrack = (start: number, currentGroup: number[]) => {
+                if (currentGroup.length === groupSize) {
+                    groups.push([...currentGroup]);
+                    return;
                 }
-                tempSeq = [cardId];
-            }
-        }
-        if (tempSeq.length >= 3) seqs.push([...tempSeq]);
-
-        // check remain cards
-        let allValidCards = [...sets, ...seqs].flat();
-        let unusedCards = remainingCards.filter(
-            (cardId) => !allValidCards.includes(cardId)
-        );
-
-        // use joker to complete set(2 length set)
-        rankGroup = {};
-        for (const cardId of unusedCards) {
-            const cardInfo = this.decks[cardId];
-            if (!rankGroup[cardInfo.value]) {
-                rankGroup[cardInfo.value] = [];
-            }
-            rankGroup[cardInfo.value].push(cardId);
-        }
-        for (const rank in rankGroup) {
-            let group = rankGroup[Number(rank)];
-            if (group.length === 2 && jokers.length > 0) {
-                group.push(jokers.pop()!);
-                sets.push(group.slice(0, 3));
-            }
-        }
-
-        allValidCards = [...sets, ...seqs].flat();
-        unusedCards = remainingCards.filter(
-            (cardId) => !allValidCards.includes(cardId)
-        );
-
-        // use joker to complete seq
-        for (const seq of seqs) {
-            const firstCard = this.decks[seq[0]];
-            const lastCard = this.decks[seq[seq.length - 1]];
-
-            if (jokers.length > 0) {
-                if (firstCard.value > DeckValue.Two) {
-                    const targetValue = firstCard.value - 2;
-                    const targetCardIndex = unusedCards.findIndex(
-                        (cardId) =>
-                            this.decks[cardId].suit === firstCard.suit &&
-                            this.decks[cardId].value === targetValue
-                    );
-                    if (targetCardIndex !== -1 && jokers.length > 0) {
-                        seq.unshift(jokers.pop()!);
-                        seq.unshift(...unusedCards.splice(targetCardIndex, 1));
-                    }
+                for (let i = start; i < cards.length; i++) {
+                    currentGroup.push(cards[i]);
+                    backtrack(i + 1, currentGroup);
+                    currentGroup.pop();
                 }
+            };
 
-                if (lastCard.value < DeckValue.Queen) {
-                    const targetValue = firstCard.value + 2;
-                    const targetCardIndex = unusedCards.findIndex(
-                        (cardId) =>
-                            this.decks[cardId].suit === lastCard.suit &&
-                            this.decks[cardId].value === targetValue
-                    );
-                    if (targetCardIndex !== -1 && jokers.length > 0) {
-                        seq.push(jokers.pop()!);
-                        seq.push(...unusedCards.splice(targetCardIndex, 1));
+            backtrack(0, []);
+            return groups;
+        };
+
+        const canFormGroup = (cards: number[]): boolean => {
+            if (cards.length === 0) return true;
+
+            for (let groupSize = 3; groupSize <= cards.length; groupSize++) {
+                const groups = generateGroups(cards, groupSize);
+
+                for (const group of groups) {
+                    if (isValidGroup(group)) {
+                        const remainingCards = cards.filter(
+                            (cardId) => !group.includes(cardId)
+                        );
+                        if (canFormGroup(remainingCards)) {
+                            return true;
+                        }
                     }
                 }
             }
-        }
 
-        if (unusedCards.length * 2 === jokers.length) {
-            for (const cardId of unusedCards) {
-                sets.push([cardId, jokers.pop()!, jokers.pop()!]);
-            }
-        }
+            return false;
+        };
 
-        const totalValidCards = [...sets, ...seqs, ...jokers].flat().length;
-        status = totalValidCards === GameSetting.InitialHoldCount;
-        console.log({ status });
-
-        console.log("set");
-        sets.forEach((set) =>
-            set.forEach((cardId) =>
-                console.log(this.decks[cardId].suit, this.decks[cardId].value)
-            )
-        );
-        console.log("seq");
-        seqs.forEach((seq) =>
-            seq.forEach((cardId) =>
-                console.log(this.decks[cardId].suit, this.decks[cardId].value)
-            )
-        );
+        status = canFormGroup(handCards);
 
         if (status) {
             this.confirmButton.setVisible(true);

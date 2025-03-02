@@ -14,6 +14,7 @@ export class GameLogic {
 
     updateGameStatus(gameStatus: GameStatus) {
         this.currentGameStatus = gameStatus;
+        this.cardManager.confirmButton.setVisible(false);
 
         if (gameStatus === GameStatus.Discard) {
             this.cardManager.updateCardDraggable();
