@@ -554,56 +554,56 @@ export class CardManager {
         const handCards = this.playerHands[currentPlayerIndex];
         // const aaa = [
         //     {
-        //         a: SuitValue.Spade,
+        //         a: SuitValue.Club,
         //         b: DeckValue.Ace,
         //     },
         //     {
-        //         a: SuitValue.Heart,
-        //         b: DeckValue.Ace,
-        //     },
-        //     {
-        //         a: SuitValue.Diamond,
-        //         b: DeckValue.Ace,
-        //     },
-        //     {
-        //         a: SuitValue.Heart,
+        //         a: SuitValue.Club,
         //         b: DeckValue.Three,
         //     },
         //     {
-        //         a: SuitValue.Heart,
+        //         a: SuitValue.Club,
         //         b: DeckValue.Four,
         //     },
         //     {
-        //         a: SuitValue.Heart,
+        //         a: SuitValue.Club,
         //         b: DeckValue.Five,
         //     },
         //     {
-        //         a: SuitValue.Club,
+        //         a: SuitValue.Heart,
+        //         b: DeckValue.Ace,
+        //     },
+        //     {
+        //         a: SuitValue.Heart,
+        //         b: DeckValue.Two,
+        //     },
+        //     {
+        //         a: SuitValue.Heart,
         //         b: DeckValue.Three,
         //     },
         //     {
-        //         a: SuitValue.Club,
-        //         b: DeckValue.Four,
+        //         a: SuitValue.Heart,
+        //         b: DeckValue.Ten,
+        //     },
+        //     {
+        //         a: SuitValue.Heart,
+        //         b: DeckValue.Ten,
+        //     },
+        //     {
+        //         a: SuitValue.Spade,
+        //         b: DeckValue.King,
+        //     },
+        //     {
+        //         a: SuitValue.Spade,
+        //         b: DeckValue.King,
         //     },
         //     {
         //         a: SuitValue.Joker,
         //         b: DeckValue.Joker,
         //     },
         //     {
-        //         a: SuitValue.Club,
-        //         b: DeckValue.Six,
-        //     },
-        //     {
-        //         a: SuitValue.Diamond,
-        //         b: DeckValue.Two,
-        //     },
-        //     {
-        //         a: SuitValue.Diamond,
-        //         b: DeckValue.Three,
-        //     },
-        //     {
-        //         a: SuitValue.Diamond,
-        //         b: DeckValue.Four,
+        //         a: SuitValue.Joker,
+        //         b: DeckValue.Joker,
         //     },
         //     {
         //         a: SuitValue.Joker,
@@ -611,15 +611,19 @@ export class CardManager {
         //     },
         // ];
         // let handCards: number[] = [];
+        // const usedIndices = new Set<number>(); // Track used indices to avoid duplicates
 
         // for (const a of aaa) {
         //     const index = this.decks.findIndex(
         //         (deck, indexed) =>
         //             deck.suit === a.a &&
         //             deck.value === a.b &&
-        //             !handCards.some((card, inde) => inde === indexed)
+        //             !usedIndices.has(indexed) // Ensure the index hasn't been used yet
         //     );
-        //     handCards.push(index);
+        //     if (index !== -1) {
+        //         handCards.push(index);
+        //         usedIndices.add(index); // Mark this index as used
+        //     }
         // }
         // console.log(`Handcards: `, [...handCards]);
 
@@ -680,8 +684,22 @@ export class CardManager {
         };
 
         const isValidGroup = (group: number[]): boolean => {
+            // isSequence(group) || isSet(group)
+            //     ? console.log("true")
+            //     : console.log("false");
             return isSequence(group) || isSet(group);
         };
+
+        // isValidGroup([
+        //     handCards[0],
+        //     handCards[1],
+        //     handCards[2],
+        //     handCards[3],
+        //     handCards[11],
+        // ]);
+        // isValidGroup([handCards[4], handCards[5], handCards[6]]);
+        // isValidGroup([handCards[7], handCards[8], handCards[12]]);
+        // isValidGroup([handCards[9], handCards[10], handCards[13]]);
 
         const generateGroups = (
             cards: number[],
